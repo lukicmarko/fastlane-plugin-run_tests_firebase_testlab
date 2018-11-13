@@ -36,10 +36,11 @@ module Fastlane
 
         end
 
-        remove_pipe_if_exists
-        Action.sh("mkfifo #{PIPE}")
-        Action.sh("tee #{@test_console_output_file} < #{PIPE} & "\
-                  "#{Commands.run_tests} "\
+        # remove_pipe_if_exists
+        # Action.sh("mkfifo #{PIPE}")
+        # Action.sh("tee #{@test_console_output_file} < #{PIPE} & "\
+                  # "#{Commands.run_tests} "\
+        Action.sh("#{Commands.run_tests} "\
                   "--type robo "\
                   "--app #{params[:app_apk]} "\
                   "--timeout #{params[:timeout]} "\
@@ -48,7 +49,7 @@ module Fastlane
                   "--robo-script #{params[:robo_script]} "\
                   "#{params[:extra_options]} "\
                   "2>&1 | tee #{@test_console_output_file}")
-        remove_pipe_if_exists
+        # remove_pipe_if_exists
 
         UI.message("Create firebase directory (if not exists) to store test results.")
         FileUtils.mkdir_p(params[:output_dir])
