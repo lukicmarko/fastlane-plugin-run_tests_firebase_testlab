@@ -46,7 +46,7 @@ module Fastlane
                   "--test #{params[:android_test_apk]} "\
                   "#{device_configuration}"\
                   "--timeout #{params[:timeout]} "\
-                  "#{params[:extra_options]} > #{PIPE} 2>&1")
+                  "2>&1 | tee #{@test_console_output_file}")
         # remove_pipe_if_exists
 
         UI.message("Create firebase directory (if not exists) to store test results.")
