@@ -37,17 +37,17 @@ module Fastlane
           device_configuration += "--device model=#{model1},version=#{params[:version].split(',')[index]},locale=#{params[:locale].split(',')[index]},orientation=#{params[:orientation].split(',')[index]} "\
         end
 
-        remove_pipe_if_exists
-        Action.sh("mkfifo #{PIPE}")
-        Action.sh("tee #{@test_console_output_file} < #{PIPE} & "\
-                  "#{Commands.run_tests} "\
+        # remove_pipe_if_exists
+        # Action.sh("mkfifo #{PIPE}")
+        # Action.sh("tee #{@test_console_output_file} < #{PIPE} & "\
+        Action.sh("#{Commands.run_tests} "\
                   "--type instrumentation "\
                   "--app #{params[:app_apk]} "\
                   "--test #{params[:android_test_apk]} "\
                   "#{device_configuration}"\
                   "--timeout #{params[:timeout]} "\
                   "#{params[:extra_options]} > #{PIPE} 2>&1")
-        remove_pipe_if_exists
+        # remove_pipe_if_exists
 
         UI.message("Create firebase directory (if not exists) to store test results.")
         FileUtils.mkdir_p(params[:output_dir])
