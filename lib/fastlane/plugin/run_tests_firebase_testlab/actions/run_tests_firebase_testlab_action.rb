@@ -65,6 +65,9 @@ module Fastlane
           UI.message("Deleting files from firebase storage...")
           Action.sh("#{Commands.delete_resuls} #{params[:bucket_url]}")
         end
+
+        return {"result_bucket_url" => Helper.real_bucket_url(@test_console_output_file), "test_lab_console_url" => Helper.test_lab_console_url(@test_console_output_file), "test_failed" => Helper.has_failed_tests(@test_console_output_file)}
+
       end
 
       def self.description
