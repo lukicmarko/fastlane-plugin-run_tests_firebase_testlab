@@ -40,7 +40,7 @@ module Fastlane
         # Action.sh("mkfifo #{PIPE}")
         # Action.sh("tee #{@test_console_output_file} < #{PIPE} & "\
                   # "#{Commands.run_tests} "\
-        Action.sh("#{Commands.run_tests} "\
+        Action.sh("#{Commands.run_beta_tests} "\
                   "--type robo "\
                   "--app #{params[:app_apk]} "\
                   "--timeout #{params[:timeout]} "\
