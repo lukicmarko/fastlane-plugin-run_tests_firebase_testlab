@@ -12,6 +12,11 @@ module Fastlane
       "gcloud firebase test android run"
     end
 
+    # run beta tests runs tests with gcloud beta SDK
+    def self.run_beta_tests
+      "gcloud beta firebase test android run"
+    end
+
     def self.download_results
       "gsutil -m cp -r"
     end

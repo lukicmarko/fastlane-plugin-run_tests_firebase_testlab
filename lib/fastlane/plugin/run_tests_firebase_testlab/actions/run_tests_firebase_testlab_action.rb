@@ -28,6 +28,15 @@ module Fastlane
         Action.sh("#{Commands.auth} --key-file #{@client_secret_file}")
 
         UI.message("Running instrumentation tests in Firebase Test Lab...")
+
+        device_configuration = ""
+        params[:model].split(',').each_with_index do |model1, index|
+          print(model1)
+          print(index)
+          print(params[:version].split(',')[index])
+          device_configuration += "--device model=#{model1},version=#{params[:version].split(',')[index]},locale=#{params[:locale].split(',')[index]},orientation=#{params[:orientation].split(',')[index]} "\
+        end
+
         remove_pipe_if_exists
         Action.sh("mkfifo #{PIPE}")
         Action.sh("tee #{@test_console_output_file} < #{PIPE} & "\
@@ -35,7 +44,7 @@ module Fastlane
                   "--type instrumentation "\
                   "--app #{params[:app_apk]} "\
                   "--test #{params[:android_test_apk]} "\
-                  "--device model=#{params[:model]},version=#{params[:version]},locale=#{params[:locale]},orientation=#{params[:orientation]} "\
+                  "#{device_configuration}"\
                   "--timeout #{params[:timeout]} "\
                   "#{params[:extra_options]} > #{PIPE} 2>&1")
         remove_pipe_if_exists
@@ -45,7 +54,7 @@ module Fastlane
 
         if params[:bucket_url].nil?
           UI.message("Parse firebase bucket url.")
-          params[:bucket_url] = scrape_bucket_url
+          params[:bucket_url] = Helper.scrape_bucket_url(@test_console_output_file)
           UI.message("bucket: #{params[:bucket_url]}")
         end
 
@@ -173,8 +182,10 @@ module Fastlane
         [
           'run_tests_firebase_testlab(
               project_id: "your-firebase-project-id",
-              model: "Nexus6P",
-              version: "27",
+              model: "Nexus6P,Nexus5X,Nexus6,HWMHA,hero2lte",
+              version: "27,25,25,24,23",
+              locale: "en_US,en_US,en_US,en_US,en_US",
+              orientation: "portrait,portrait,portrait,portrait,portrait",
               delete_firebase_files: true
           )'
         ]
@@ -184,17 +195,17 @@ module Fastlane
         :testing
       end
 
-      def self.scrape_bucket_url
-        File.open(@test_console_output_file).each do |line|
-          url = line.scan(/\[(.*)\]/).last&.first
-          next unless !url.nil? and (!url.empty? and url.include?("test-lab-"))
-          splitted_url = url.split("/")
-          length = splitted_url.length
-          return "gs://#{splitted_url[length - 2]}/#{splitted_url[length - 1]}"
-        end
-      end
+      # def self.scrape_bucket_url
+      #   File.open(@test_console_output_file).each do |line|
+      #     url = line.scan(/\[(.*)\]/).last&.first
+      #     next unless !url.nil? and (!url.empty? and url.include?("test-lab-"))
+      #     splitted_url = url.split("/")
+      #     length = splitted_url.length
+      #     return "gs://#{splitted_url[length - 2]}/#{splitted_url[length - 1]}"
+      #   end
+      # end
 
-      private_class_method :scrape_bucket_url
+      # private_class_method :scrape_bucket_url
 
       def self.remove_pipe_if_exists
         Action.sh("rm #{PIPE}") if File.exist?(PIPE)
