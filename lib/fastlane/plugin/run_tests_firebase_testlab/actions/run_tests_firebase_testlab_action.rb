@@ -10,64 +10,7 @@ module Fastlane
       end
 
       def self.run(params)
-        UI.message("Starting run_tests_firebase_testlab plugin...")
-
-        if params[:gcloud_service_key_file].nil?
-          UI.message("Save Google Cloud credentials.")
-          File.open(@client_secret_file, 'w') do |file|
-            file.write(ENV["GCLOUD_SERVICE_KEY"])
-          end
-        else
-          @client_secret_file = params[:gcloud_service_key_file]
-        end
-
-        UI.message("Set Google Cloud target project.")
-        Action.sh("#{Commands.config} #{params[:project_id]}")
-
-        UI.message("Authenticate with Google Cloud.")
-        Action.sh("#{Commands.auth} --key-file #{@client_secret_file}")
-
-        UI.message("Running instrumentation tests in Firebase Test Lab...")
-
-        device_configuration = ""
-        params[:model].split(',').each_with_index do |model1, index|
-          print(model1)
-          print(index)
-          print(params[:version].split(',')[index])
-          device_configuration += "--device model=#{model1},version=#{params[:version].split(',')[index]},locale=#{params[:locale].split(',')[index]},orientation=#{params[:orientation].split(',')[index]} "\
-        end
-
-        remove_pipe_if_exists
-        Action.sh("mkfifo #{PIPE}")
-        Action.sh("tee #{@test_console_output_file} < #{PIPE} & "\
-                  "#{Commands.run_tests} "\
-                  "--type instrumentation "\
-                  "--app #{params[:app_apk]} "\
-                  "--test #{params[:android_test_apk]} "\
-                  "#{device_configuration}"\
-                  "--timeout #{params[:timeout]} "\
-                  "2>&1 | tee #{@test_console_output_file}")
-        remove_pipe_if_exists
-
-        UI.message("Create firebase directory (if not exists) to store test results.")
-        FileUtils.mkdir_p(params[:output_dir])
-
-        if params[:bucket_url].nil?
-          UI.message("Parse firebase bucket url.")
-          params[:bucket_url] = Helper.scrape_bucket_url(@test_console_output_file)
-          UI.message("bucket: #{params[:bucket_url]}")
-        end
-
-        UI.message("Downloading instrumentation test results from Firebase Test Lab...")
-        Action.sh("#{Commands.download_results} #{params[:bucket_url]} #{params[:output_dir]}")
-
-        if params[:delete_firebase_files]
-          UI.message("Deleting files from firebase storage...")
-          Action.sh("#{Commands.delete_resuls} #{params[:bucket_url]}")
-        end
-
-        return {"result_bucket_url" => Helper.real_bucket_url(@test_console_output_file), "test_lab_console_url" => Helper.test_lab_console_url(@test_console_output_file), "test_failed" => Helper.has_failed_tests(@test_console_output_file)}
-
+        return Helper.run_test(params, "instrumentation", client_secret_file, test_console_output_file)
       end
 
       def self.description
@@ -198,23 +141,6 @@ module Fastlane
         :testing
       end
 
-      # def self.scrape_bucket_url
-      #   File.open(@test_console_output_file).each do |line|
-      #     url = line.scan(/\[(.*)\]/).last&.first
-      #     next unless !url.nil? and (!url.empty? and url.include?("test-lab-"))
-      #     splitted_url = url.split("/")
-      #     length = splitted_url.length
-      #     return "gs://#{splitted_url[length - 2]}/#{splitted_url[length - 1]}"
-      #   end
-      # end
-
-      # private_class_method :scrape_bucket_url
-
-      def self.remove_pipe_if_exists
-        Action.sh("rm #{PIPE}") if File.exist?(PIPE)
-      end
-
-      private_class_method :remove_pipe_if_exists
     end
   end
 end
