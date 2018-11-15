@@ -94,7 +94,7 @@ Style/AndOr:
 Metrics/ClassLength:
   Max: 320
 Metrics/LineLength:
-  Max: 370
+  Max: 580
 Metrics/ParameterLists:
   Max: 17
 Metrics/PerceivedComplexity:

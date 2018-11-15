@@ -14,7 +14,7 @@ describe Fastlane::Actions::RunTestsFirebaseTestlabAction do
       File.open(test_console_output_file, 'w') { |f| f.write(test_console_output) }
       allow(File).to receive(:open).with(Fastlane::Actions::RunTestsFirebaseTestlabAction.test_console_output_file).and_return(File.open(test_console_output_file))
 
-      allow(File).to receive(:open).with(Fastlane::Actions::RunTestsFirebaseTestlabAction.client_secret_file, 'w').and_return(client_secret_file)
+      allow(File).to receive(:open).with(Fastlane::Helper.client_secret_file, 'w').and_return(client_secret_file)
     end
 
     after :each do
