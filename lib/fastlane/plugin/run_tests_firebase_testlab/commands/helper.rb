@@ -101,9 +101,9 @@ module Fastlane
 
       remove_pipe_if_exists
       Action.sh("mkfifo #{PIPE}")
-      command = "tee #{test_console_output_file} < #{PIPE} & "
+      command = "sudo tee #{test_console_output_file} < #{PIPE} & "
       if test_type == "instrumentation"
-        command += "#{Commands.run_tests} "\
+        command += "sudo #{Commands.run_tests} "\
                    "--test #{params[:android_test_apk]} "
       end
       if test_type == "robo"
