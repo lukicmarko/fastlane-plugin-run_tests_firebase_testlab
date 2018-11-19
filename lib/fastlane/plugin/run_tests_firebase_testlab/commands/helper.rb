@@ -1,6 +1,5 @@
 module Fastlane
   module Helper
-    PIPE = "testlab-pipe"
     @client_secret_file = "client-secret.json"
 
     class << self
@@ -99,15 +98,13 @@ module Fastlane
         device_configuration += "--device model=#{model1},version=#{params[:version].split(',')[index]},locale=#{params[:locale].split(',')[index]},orientation=#{params[:orientation].split(',')[index]} "\
       end
 
-      remove_pipe_if_exists
-      Action.sh("mkfifo #{PIPE}")
-      command = "sudo tee #{test_console_output_file} < #{PIPE} & "
+      
       if test_type == "instrumentation"
-        command += "sudo #{Commands.run_tests} "\
+        command = "sudo #{Commands.run_tests} "\
                    "--test #{params[:android_test_apk]} "
       end
       if test_type == "robo"
-        command += "#{Commands.run_beta_tests} "\
+        command = "#{Commands.run_beta_tests} "\
                    "--robo-directives #{params[:robo_directives]} "\
                    "--robo-script #{params[:robo_script]} "\
                    "#{params[:extra_options]} "
@@ -116,9 +113,8 @@ module Fastlane
                 "--timeout #{params[:timeout]} "\
                 "#{device_configuration}"\
                 "--type #{test_type} "\
-                " > #{PIPE} 2>&1"
+                " 2>&1 | tee instrumentation_output.txt"
       Action.sh(command)
-      remove_pipe_if_exists
 
       UI.message("Create firebase directory (if not exists) to store test results.")
       FileUtils.mkdir_p(params[:output_dir])
@@ -139,10 +135,6 @@ module Fastlane
 
       UI.message("Helper test END")
       return { "result_bucket_url" => real_bucket_url(test_console_output_file), "test_lab_console_url" => test_lab_console_url(test_console_output_file), "test_failed" => has_failed_tests(test_console_output_file) }
-    end
-
-    def self.remove_pipe_if_exists
-      Action.sh("rm #{PIPE}") if File.exist?(PIPE)
     end
   end
 end
