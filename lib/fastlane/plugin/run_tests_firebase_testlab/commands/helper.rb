@@ -105,7 +105,6 @@ module Fastlane
       end
       if test_type == "robo"
         command = "#{Commands.run_beta_tests} "\
-                   "--robo-directives #{params[:robo_directives]} "\
                    "--robo-script #{params[:robo_script]} "\
                    "#{params[:extra_options]} "
       end
