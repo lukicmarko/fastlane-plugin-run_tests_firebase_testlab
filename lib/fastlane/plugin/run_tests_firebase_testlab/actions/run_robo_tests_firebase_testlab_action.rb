@@ -1,12 +1,10 @@
 module Fastlane
   module Actions
     class RunRoboTestsFirebaseTestlabAction < Action
-      PIPE = "testlab-pipe"
-      @client_secret_file = "client-secret.json"
       @test_console_output_file = "robo_output1.txt"
 
       class << self
-        attr_reader :client_secret_file, :test_console_output_file
+        attr_reader :test_console_output_file
       end
 
       def self.run(params)

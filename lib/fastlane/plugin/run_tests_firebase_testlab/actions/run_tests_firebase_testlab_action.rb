@@ -1,22 +1,14 @@
 module Fastlane
   module Actions
     class RunTestsFirebaseTestlabAction < Action
-      PIPE = "testlab-pipe"
-      @client_secret_file = "client-secret.json"
       @test_console_output_file = "instrumentation_output.txt"
 
       class << self
-        attr_reader :client_secret_file, :test_console_output_file
+        attr_reader :test_console_output_file
       end
 
       def self.run(params)
-        UI.message("RunTestsFirebaseTestlabAction START")
-        result =  Helper.run_test(params, "instrumentation", test_console_output_file)
-        result.each do |key,value|
-          UI.message("#{key}:#{value}")
-        end
-        UI.message("RunTestsFirebaseTestlabAction END")
-        return result
+        return Helper.run_test(params, "instrumentation", test_console_output_file)
       end
 
       def self.description

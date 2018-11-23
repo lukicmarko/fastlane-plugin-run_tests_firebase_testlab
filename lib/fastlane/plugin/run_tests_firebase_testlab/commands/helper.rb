@@ -88,7 +88,7 @@ module Fastlane
       UI.message("Authenticate with Google Cloud.")
       Action.sh("#{Commands.auth} --key-file #{@client_secret_file}")
 
-      UI.message("Running instrumentation tests in Firebase Test Lab...")
+      UI.message("Running" + test_type + "tests in Firebase Test Lab...")
 
       device_configuration = ""
       params[:model].split(',').each_with_index do |model1, index|
@@ -104,7 +104,7 @@ module Fastlane
                    "--test #{params[:android_test_apk]} "
       end
       if test_type == "robo"
-        command = "#{Commands.run_beta_tests} "\
+        command = "sudo #{Commands.run_beta_tests} "\
                    "--robo-script #{params[:robo_script]} "\
                    "#{params[:extra_options]} "
       end
@@ -112,7 +112,7 @@ module Fastlane
                 "--timeout #{params[:timeout]} "\
                 "#{device_configuration}"\
                 "--type #{test_type} "\
-                " 2>&1 | tee instrumentation_output.txt"
+                " 2>&1 | tee " + test_console_output_file
       Action.sh(command)
 
       UI.message("Create firebase directory (if not exists) to store test results.")
